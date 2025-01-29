@@ -23,7 +23,7 @@ RUN if [ $TARGETARCH = "arm64" ]; then \
        dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
        dnf clean all && rm -rf /var/cache/* \
        ; fi
-RUN if ! [ $TARGETARCH = "arm64" ]; then \
+RUN if [ $TARGETARCH != "arm64" ]; \
        source /etc/os-release && [ "${ID}" != "centos" ] && exit 0; \
        INSTALL_PKGS="dnf-plugins-core centos-release-nfv-openvswitch centos-release-openstack-zed" && \
        dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
@@ -35,5 +35,5 @@ RUN if ! [ $TARGETARCH = "arm64" ]; then \
 # Enable madvdontneed=1, for golang < 1.16 https://github.com/golang/go/issues/42330
 ENV GODEBUG=x509ignoreCN=0,madvdontneed=1
 
-LABEL io.k8s.display-name="DDK Base Centos Stream 9" \
-      io.k8s.description="This is the base image from which all DDK Centos Stream 9images inherit."
+LABEL io.k8s.display-name="OpenShift Base RHEL9" \
+      io.k8s.description="This is the base image from which all OpenShift RHEL9 images inherit."
