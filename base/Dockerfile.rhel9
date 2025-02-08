@@ -1,5 +1,6 @@
 FROM quay.io/centos/centos:stream9 
 ARG TARGETARCH
+ARG TARGETPLATFORM
 
 # A ubi9 image will expose python3 as /usr/bin/python. It does not contain
 # python2. Subsequent layers should install if it needed.
@@ -16,6 +17,8 @@ RUN INSTALL_PKGS=" \
     dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
     dnf clean all && rm -rf /var/cache/*
 RUN echo $TARGETARCH
+RUN echo $TARGETPLATFORM
+RUN env
 # OKD-specific changes
 RUN if [ $TARGETARCH = "arm64" ]; then \
        source /etc/os-release && [ "${ID}" != "centos" ] && exit 0; \
