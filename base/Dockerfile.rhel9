@@ -16,9 +16,6 @@ RUN INSTALL_PKGS=" \
     echo 'skip_missing_names_on_install=0' >> /etc/yum.conf && \
     dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
     dnf clean all && rm -rf /var/cache/*
-RUN echo $TARGETARCH
-RUN echo $TARGETPLATFORM
-RUN env
 # OKD-specific changes
 RUN if [ $TARGETARCH = "arm64" ]; then \
        source /etc/os-release && [ "${ID}" != "centos" ] && exit 0; \
@@ -40,4 +37,4 @@ RUN if ! [ $TARGETARCH = "arm64" ]; then \
 ENV GODEBUG=x509ignoreCN=0,madvdontneed=1
 
 LABEL io.k8s.display-name="DDK Base Centos Stream 9" \
-      io.k8s.description="This is the base image from which all DDK Centos Stream 9images inherit."
+      io.k8s.description="This is the base image from which all DDK Centos Stream 9 images inherit."
