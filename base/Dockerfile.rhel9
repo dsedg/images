@@ -21,6 +21,7 @@ RUN if [ $TARGETARCH = "arm64" ]; then \
        source /etc/os-release && [ "${ID}" != "centos" ] && exit 0; \
        INSTALL_PKGS="dnf-plugins-core centos-release-nfv-openvswitch centos-release-openstack-zed" && \
        dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
+       dnf config-manager --set-disabled rt && \
        dnf clean all && rm -rf /var/cache/* \
        ; fi
 RUN if ! [ $TARGETARCH = "arm64" ]; then \
