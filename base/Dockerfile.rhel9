@@ -1,4 +1,6 @@
-FROM registry.ci.openshift.org/ocp/builder:rhel-9-base-openshift-4.18
+FROM quay.io/centos/centos:stream9 
+ARG TARGETARCH
+ARG TARGETPLATFORM
 
 # A ubi9 image will expose python3 as /usr/bin/python. It does not contain
 # python2. Subsequent layers should install if it needed.
@@ -14,17 +16,25 @@ RUN INSTALL_PKGS=" \
     echo 'skip_missing_names_on_install=0' >> /etc/yum.conf && \
     dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
     dnf clean all && rm -rf /var/cache/*
-
 # OKD-specific changes
-RUN source /etc/os-release && [ "${ID}" != "centos" ] && exit 0; \
-    INSTALL_PKGS="dnf-plugins-core centos-release-nfv-openvswitch centos-release-openstack-zed" && \
-        dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
-        dnf config-manager --set-enabled rt && \
-        dnf clean all && rm -rf /var/cache/*
+RUN if [ $TARGETARCH = "arm64" ]; then \
+       source /etc/os-release && [ "${ID}" != "centos" ] && exit 0; \
+       INSTALL_PKGS="dnf-plugins-core centos-release-nfv-openvswitch centos-release-openstack-zed" && \
+       dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
+       dnf config-manager --set-disabled rt && \
+       dnf clean all && rm -rf /var/cache/* \
+       ; fi
+RUN if ! [ $TARGETARCH = "arm64" ]; then \
+       source /etc/os-release && [ "${ID}" != "centos" ] && exit 0; \
+       INSTALL_PKGS="dnf-plugins-core centos-release-nfv-openvswitch centos-release-openstack-zed" && \
+       dnf install -y --nodocs --setopt=install_weak_deps=False ${INSTALL_PKGS} && \
+       dnf config-manager --set-enabled rt && \
+       dnf clean all && rm -rf /var/cache/* \
+       ; fi
 
 # Enable x509 common name matching for golang 1.15 and beyond.
 # Enable madvdontneed=1, for golang < 1.16 https://github.com/golang/go/issues/42330
 ENV GODEBUG=x509ignoreCN=0,madvdontneed=1
 
-LABEL io.k8s.display-name="OpenShift Base RHEL9" \
-      io.k8s.description="This is the base image from which all OpenShift RHEL9 images inherit."
+LABEL io.k8s.display-name="DDK Base Centos Stream 9" \
+      io.k8s.description="This is the base image from which all DDK Centos Stream 9 images inherit."
